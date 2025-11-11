@@ -11,13 +11,11 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => min_ios_version_supported }
-  s.source       = { :git => "https://github.com/dream11-atharva/react-native-flagship-rn-sdk.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/ds-horizon/flagship-sdks.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
   s.private_header_files = "ios/**/*.h"
   s.public_header_files = "ios/FlagshipRnSdk.h"
-  s.dependency "React-Core"
-  s.dependency "OpenFeature", "0.3.0"
   s.dependency "FlagshipFeatureFlags", "0.2.92"
 
   s.swift_version = "5.0"
