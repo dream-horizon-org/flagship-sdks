@@ -54,7 +54,7 @@ afterEvaluate {
                 pom {
                     name.set("Flagship SDK")
                     description.set("Android SDK for Flagship feature flags")
-                    url.set("https://github.com/dream11/flagship-sdk")
+                    url.set("https://github.com/ds-horizon/flagship-sdks")
 
                     licenses {
                         license {
@@ -74,7 +74,7 @@ afterEvaluate {
                     scm {
                         connection.set("scm:git:git://github.com/dream11/flagship-sdk.git")
                         developerConnection.set("scm:git:ssh://github.com/dream11/flagship-sdk.git")
-                        url.set("https://github.com/dream11/flagship-sdk")
+                        url.set("https://github.com/ds-horizon/flagship-sdks")
                     }
                 }
             }
@@ -83,7 +83,7 @@ afterEvaluate {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/dream11/flagship-sdk")
+                url = uri("https://maven.pkg.github.com/ds-horizon/flagship-sdks")
                 credentials {
                     username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
                     password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
