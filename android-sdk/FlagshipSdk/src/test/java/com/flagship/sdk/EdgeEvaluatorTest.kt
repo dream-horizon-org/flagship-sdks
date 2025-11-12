@@ -669,6 +669,81 @@ class EdgeEvaluatorTest {
         assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
     }
 
+    @Test
+    fun `evaluateInt returns variant value when semver value matches`() {
+        semverTestData().forEach { (operator, constraintValue, shouldMatch) ->
+            // Given
+            val flagKey = "test_flag"
+            val defaultValue = 10
+            val targetingKey = "user123"
+            val context = EvaluationContext(targetingKey, mapOf("app_version" to "1.2.3"))
+
+            val variant = VariantElement("variant_a", VariantValue.IntegerValue(69))
+            val defaultVariant = VariantElement("variant_default", VariantValue.IntegerValue(42))
+            val allocation = AllocationElement(100, "variant_a")
+            val constraint = Constraint("app_version", operator, ConstraintValue.StringValue(constraintValue))
+            val rule = Rule(listOf(allocation), listOf(constraint), "1")
+            val config =
+                createTestFeature(
+                    rolloutPercentage = 100,
+                    rules = listOf(rule),
+                    variants = listOf(variant, defaultVariant),
+                    defaultAllocation = listOf(AllocationElement(100, "variant_default")),
+                )
+
+            every { evaluateCache.get<Int>(flagKey) } returns null
+
+            // When
+            val result = edgeEvaluator.evaluateInt(flagKey, defaultValue, config, context)
+
+            // Then
+            if (shouldMatch) {
+                assertEquals(69, result.value)
+                assertEquals("variant_a", result.variant)
+                assertEquals(Reason.TARGETING_MATCH, result.reason)
+            } else {
+                assertEquals(42, result.value)
+                assertEquals("variant_default", result.variant)
+                assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
+            }
+        }
+    }
+
+    private fun semverTestData(): List<Triple<Operator, String, Boolean>> {
+        return listOf(
+            // Basic semver comparisons
+            Triple(Operator.Gt, "1.2.2", true),
+            Triple(Operator.Gt, "1.2.3.1", false),
+            Triple(Operator.Eq, "1.2.3", true),
+            Triple(Operator.Eq, "1.2.3.1", false),
+            Triple(Operator.Gte, "1.2.3", true),
+            Triple(Operator.Gte, "100.10001.100000", false),
+            Triple(Operator.LTE, "1.2.3", true),
+            Triple(Operator.LTE, "100.10001.100000", true),
+            Triple(Operator.Lt, "1.2.4", true),
+            Triple(Operator.Neq, "1.2.3", false),
+            Triple(Operator.Neq, "1.2.3.1", true),
+            Triple(Operator.Gt, "1.2.3-alpha", true),  // 1.2.3 > 1.2.3-alpha
+            Triple(Operator.Gt, "1.2.3-beta.1", true),  // 1.2.3 > 1.2.3-beta.1
+            Triple(Operator.Gt, "1.2.3-rc.2", true),  // 1.2.3 > 1.2.3-rc.2
+            Triple(Operator.Gt, "1.2.3-0.3.7", true),  // 1.2.3 > 1.2.3-0.3.7
+            Triple(Operator.Gt, "1.2.3-alpha.1.beta.2", true),  // 1.2.3 > 1.2.3-alpha.1.beta.2
+            Triple(Operator.Gte, "1.2.3-alpha", true),  // 1.2.3 >= 1.2.3-alpha
+            Triple(Operator.Lt, "1.2.3-alpha", false),  // 1.2.3 < 1.2.3-alpha is false
+            Triple(Operator.Neq, "1.2.3-alpha", true),  // 1.2.3 != 1.2.3-alpha
+            Triple(Operator.Gt, "1.2.3-alpha+build.123", true),  // 1.2.3 > 1.2.3-alpha+build.123
+            Triple(Operator.Gt, "1.2.4-alpha+build.123", false),
+            Triple(Operator.Gt, "1.2.3-beta.1+exp.sha.5114f85", true),  // 1.2.3 > 1.2.3-beta.1+exp.sha.5114f85
+            Triple(Operator.Neq, "1.2.3-alpha+build.123", true),  // 1.2.3 != 1.2.3-alpha+build.123
+            Triple(Operator.Gt, "2.0.0-alpha.1", false),  // 1.2.3 > 2.0.0-alpha.1 is false
+            Triple(Operator.Gt, "1.2.4-beta.2", false),  // 1.2.3 > 1.2.4-beta.2 is false
+            Triple(Operator.Lt, "2.0.0-alpha.1", true),  // 1.2.3 < 2.0.0-alpha.1
+            Triple(Operator.Lt, "1.2.4-beta.2", true),  // 1.2.3 < 1.2.4-beta.2
+            Triple(Operator.LTE, "2.0.0-alpha.1", true),  // 1.2.3 <= 2.0.0-alpha.1
+            Triple(Operator.LTE, "1.2.4-beta.2", true),  // 1.2.3 <= 1.2.4-beta.2
+        )
+    }
+
     // ========== Helper Methods ==========
 
     private fun createTestFeature(

@@ -15,6 +15,7 @@ import com.flagship.sdk.core.models.Reason
 import com.flagship.sdk.core.models.Rule
 import com.flagship.sdk.core.models.VariantElement
 import com.flagship.sdk.core.models.VariantValue
+import com.github.zafarkhaja.semver.Version
 
 class EdgeEvaluator(
     private val evaluateCache: ICache,
@@ -336,18 +337,25 @@ class EdgeEvaluator(
     private fun compare(
         left: Any?,
         right: ConstraintValue,
-    ): Int? =
-        when (right) {
+    ): Int? {
+        return when (right) {
             is ConstraintValue.DoubleValue -> left.toDoubleOrNull()?.compareTo(right.value)
             is ConstraintValue.IntegerValue -> left.toLongOrNull()?.compareTo(right.value)
             is ConstraintValue.StringValue -> {
-                // TODO: Implement semver comparison when you support it.
-                // e.g., return semverCompare(left as? String, right.value)
-                null
+                // use java-semver library to compare semver strings
+                try {
+                    val leftString = left as? String ?: return null
+                    val leftVersion = Version.valueOf(leftString)
+                    val rightVersion = Version.valueOf(right.value)
+                    return leftVersion.compareTo(rightVersion)
+                } catch (e: Exception) {
+                    return null
+                }
             }
 
             else -> null
         }
+    }
 
     private fun Any?.toDoubleOrNull(): Double? =
         when (this) {

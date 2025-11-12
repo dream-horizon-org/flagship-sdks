@@ -78,6 +78,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     api(libs.open.feature.ktx)
 
+    // Semver version comparison
+    implementation(libs.java.semver)
+
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk:1.14.6")
     androidTestImplementation(libs.androidx.junit)
