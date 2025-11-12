@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@d11/flagship-rn-sdk": "^0.2.2",
+    "@d11/flagship-rn-sdk": "^0.2.3",
     "@react-native/new-app-screen": "0.82.1",
     "react": "19.1.1",
     "react-native": "0.82.1",

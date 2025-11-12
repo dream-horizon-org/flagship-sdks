@@ -33,14 +33,5 @@ target 'DemoRnApp' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
-    
-    # Configure BUILD_LIBRARY_FOR_DISTRIBUTION for FlagshipFeatureFlags and OpenFeature
-    installer.pods_project.targets.each do |target|
-      if target.name == 'FlagshipFeatureFlags' || target.name == 'OpenFeature'
-        target.build_configurations.each do |config|
-          config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-        end
-      end
-    end
   end
 end
