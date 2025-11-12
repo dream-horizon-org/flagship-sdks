@@ -16,13 +16,9 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,cpp,swift}"
   s.private_header_files = "ios/**/*.h"
   s.public_header_files = "ios/FlagshipRnSdk.h"
-  s.dependency "FlagshipFeatureFlags", "0.2.92"
+  s.dependency "FlagshipFeatureFlags", "0.2.93"
 
-  s.swift_version = "5.0"
-  s.pod_target_xcconfig = {
-    'SWIFT_VERSION' => '5.0',
-    'DEFINES_MODULE' => 'YES'
-  }
+  s.swift_version = "5.5"
 
   if respond_to?(:install_modules_dependencies, true)
     install_modules_dependencies(s)
