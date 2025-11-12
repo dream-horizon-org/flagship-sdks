@@ -1,5 +1,5 @@
 PODS:
-  - FlagshipFeatureFlags (0.2.91):
+  - FlagshipFeatureFlags (0.2.92):
     - OpenFeature (= 0.3.0)
   - OpenFeature (0.3.0)
 
@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  FlagshipFeatureFlags: 42e1887f5134f35bf4105e7602c8358a3be21614
+  FlagshipFeatureFlags: 8d6e513943151992c7e9a881d364dd91b266b984
   OpenFeature: 985529d7d21078c4166233b254446728af642c49
 
 PODFILE CHECKSUM: 1d41a8690f2e71b11ffe81f0cfd4114509a831a0
