@@ -300,15 +300,30 @@ class EdgeEvaluator(
         val left = context.attributes[constraint.contextField]
         return when (constraint.operator) {
             Operator.In -> {
-                (constraint.value as? ConstraintValue.AnythingArrayValue)
-                    ?.value
-                    ?.any {
-                        when (it) {
-                            is ArrayValue.StringValue -> it.value == left
-                            is ArrayValue.IntegerValue -> it.value == (left as? Number)?.toLong()
+                (
+                    (constraint.value as? ConstraintValue.AnythingArrayValue)
+                        ?.value
+                        ?.any {
+                            Log.d("Rule evaluation", "in value $it left $left")
+                            when (it) {
+                                is ArrayValue.StringValue -> it.value == left
+                                is ArrayValue.IntegerValue -> it.value == (left as? Number)?.toLong()
+                                is ArrayValue.SemverValue -> {
+                                    try {
+                                        val leftString = left as? String ?: return false
+                                        val leftVersion = Version.parse(leftString)
+                                        val rightVersion = Version.parse(it.value)
+                                        return leftVersion.compareToIgnoreBuildMetadata(rightVersion) == 0
+                                    } catch (e: Exception) {
+                                        return false
+                                    }
+                                }
+                            }
                         }
-                    }
-                    ?: false
+                        ?: false
+                ).also {
+                    Log.d("Rule evaluation", "in value $it")
+                }
             }
 
             Operator.Eq -> eq(left, constraint.value)
@@ -325,14 +340,25 @@ class EdgeEvaluator(
     private fun eq(
         left: Any?,
         right: ConstraintValue,
-    ): Boolean =
-        when (right) {
+    ): Boolean {
+        return when (right) {
             is ConstraintValue.BoolValue -> left is Boolean && left == right.value
             is ConstraintValue.DoubleValue -> left.toDoubleOrNull()?.let { it == right.value } ?: false
             is ConstraintValue.IntegerValue -> left.toLongOrNull()?.let { it == right.value } ?: false
-            is ConstraintValue.StringValue -> left is String && left == right.value
+            is ConstraintValue.StringValue -> {
+                try {
+                    val leftString = left as? String ?: return false
+                    val leftVersion = Version.parse(leftString)
+                    val rightVersion = Version.parse(right.value)
+                    return leftVersion.compareToIgnoreBuildMetadata(rightVersion) == 0
+                } catch (e: Exception) {
+                    return left is String && left == right.value
+                }
+            }
+
             is ConstraintValue.AnythingArrayValue -> right.value.any { it == left }
         }
+    }
 
     private fun compare(
         left: Any?,
@@ -345,9 +371,9 @@ class EdgeEvaluator(
                 // use java-semver library to compare semver strings
                 try {
                     val leftString = left as? String ?: return null
-                    val leftVersion = Version.valueOf(leftString)
-                    val rightVersion = Version.valueOf(right.value)
-                    return leftVersion.compareTo(rightVersion)
+                    val leftVersion = Version.parse(leftString)
+                    val rightVersion = Version.parse(right.value)
+                    return leftVersion.compareToIgnoreBuildMetadata(rightVersion)
                 } catch (e: Exception) {
                     return null
                 }

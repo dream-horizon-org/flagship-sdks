@@ -741,6 +741,21 @@ class EdgeEvaluatorTest {
             Triple(Operator.Lt, "1.2.4-beta.2", true),  // 1.2.3 < 1.2.4-beta.2
             Triple(Operator.LTE, "2.0.0-alpha.1", true),  // 1.2.3 <= 2.0.0-alpha.1
             Triple(Operator.LTE, "1.2.4-beta.2", true),  // 1.2.3 <= 1.2.4-beta.2
+
+            // Eq and Neq tests for semver (release != pre-release, but build metadata doesn't affect equality)
+            Triple(Operator.Eq, "1.2.3", true),  // 1.2.3 == 1.2.3 (exact match)
+            Triple(Operator.Eq, "1.2.3-alpha", false),  // 1.2.3 == 1.2.3-alpha is false (release != pre-release)
+            Triple(Operator.Eq, "1.2.3-beta.1", false),  // 1.2.3 == 1.2.3-beta.1 is false (release != pre-release)
+            Triple(Operator.Gt, "1.2.3-rc.2", true),  // 1.2.3 == 1.2.3-rc.2 is false (release != pre-release)
+            Triple(Operator.Eq, "1.2.3+build.123", true),  // 1.2.3 == 1.2.3+build.123 (build metadata doesn't affect equality)
+            Triple(Operator.Eq, "1.2.3+20130313144700", true),  // 1.2.3 == 1.2.3+20130313144700
+            Triple(Operator.Eq, "1.2.3+exp.sha.5114f85", true),  // 1.2.3 == 1.2.3+exp.sha.5114f85
+            Triple(Operator.Neq, "1.2.3", false),  // 1.2.3 != 1.2.3 is false (they're equal)
+            Triple(Operator.Neq, "1.2.3-alpha", true),  // 1.2.3 != 1.2.3-alpha (release != pre-release)
+            Triple(Operator.Neq, "1.2.3-beta.1", true),  // 1.2.3 != 1.2.3-beta.1 (release != pre-release)
+            Triple(Operator.Neq, "1.2.3-rc.2", true),  // 1.2.3 != 1.2.3-rc.2 (release != pre-release)
+            Triple(Operator.Neq, "1.2.3+build.123", false),  // 1.2.3 != 1.2.3+build.123 is false (build metadata doesn't affect equality)
+            Triple(Operator.Neq, "1.2.3-alpha+build.123", true),  // 1.2.3 != 1.2.3-alpha+build.123 (release != pre-release)
         )
     }
 
