@@ -54,10 +54,7 @@ class EdgeEvaluator(
             }
 
             for (rule in config.rules) {
-                val isMatch =
-                    checkRuleConstraints(rule, context).also {
-                        Log.d("Matches", "isMatch $it")
-                    }
+                val isMatch = checkRuleConstraints(rule, context)
                 if (isMatch) {
                     val allocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, rule.allocations, rule.ruleName)
                     val variant = getVariantValue(config.variants, allocation)
@@ -74,7 +71,6 @@ class EdgeEvaluator(
             return@run EvaluationResult(value = defaultValue, reason = Reason.DEFAULT)
         }.also {
             evaluateCache.put(flagKey, it.value)
-            Log.d("EdgeEvaluator" , "Also block called")
         }
     }
 
@@ -281,10 +277,6 @@ class EdgeEvaluator(
     ): Boolean {
         for (constraint in rule.constraints) {
             val matches = matches(constraint, context)
-            Log.d(
-                "Matches",
-                "Rule id ${rule.ruleName}  constraint id ${constraint.contextField}  matched $matches",
-            )
             if (!matches) return false
         }
         return true
@@ -305,37 +297,22 @@ class EdgeEvaluator(
         context: EvaluationContext,
     ): Boolean {
         val left = context.attributes[constraint.contextField]
-        Log.d(
-            "Rule evaluation",
-            "Checking ${constraint.contextField} and context ${context.attributes}",
-        )
         return when (constraint.operator) {
             Operator.In -> {
-                (
-                    (constraint.value as? ConstraintValue.AnythingArrayValue)
-                        ?.value
-                        ?.any {
-                            Log.d("Rule evaluation", "in value $it left $left")
-                            when (it) {
-                                is ArrayValue.StringValue -> it.value == left
-                                is ArrayValue.IntegerValue -> it.value == (left as? Number)?.toLong()
-                            }
+                (constraint.value as? ConstraintValue.AnythingArrayValue)
+                    ?.value
+                    ?.any {
+                        when (it) {
+                            is ArrayValue.StringValue -> it.value == left
+                            is ArrayValue.IntegerValue -> it.value == (left as? Number)?.toLong()
                         }
-                        ?: false
-                ).also {
-                    Log.d("Rule evaluation", "in value $it")
-                }
+                    }
+                    ?: false
             }
 
-            Operator.Eq ->
-                eq(left, constraint.value).also {
-                    Log.d("Rule evaluation", "equal value $it")
-                }
+            Operator.Eq -> eq(left, constraint.value)
 
-            Operator.Neq ->
-                (!eq(left, constraint.value)).also {
-                    Log.d("Rule evaluation", "not equal value $it")
-                }
+            Operator.Neq -> !eq(left, constraint.value)
 
             Operator.Gt -> compare(left, constraint.value)?.let { it > 0 } ?: false
             Operator.Gte -> compare(left, constraint.value)?.let { it >= 0 } ?: false
@@ -354,8 +331,6 @@ class EdgeEvaluator(
             is ConstraintValue.IntegerValue -> left.toLongOrNull()?.let { it == right.value } ?: false
             is ConstraintValue.StringValue -> left is String && left == right.value
             is ConstraintValue.AnythingArrayValue -> right.value.any { it == left }
-        }.also {
-            Log.d("Rule evaluation", "Checking $left and $right")
         }
 
     private fun compare(
