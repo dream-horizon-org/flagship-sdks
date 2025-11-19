@@ -60,15 +60,16 @@ fun MainScreen(
         mapOf(
             "user_tier" to "premium",
             "country" to "US",
-            "user_group" to "beta_testers",
+            "user_group" to "beta_testerss",
             "is_logged_in" to true,
-            "is_accessibility_user" to true,
+            "is_accessibility_user" to false,
             "device" to "mobile",
             "theme_pref" to "light",
             "session_count" to 150.0,
             "region" to "US",
             "userId" to 3456,
             "app_version" to "2.5.0",
+            "user_tags" to listOf("early-adopter", "beta-tester", "premium"),
         )
     }
 
