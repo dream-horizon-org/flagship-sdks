@@ -304,16 +304,13 @@ class EdgeEvaluator(
                     (constraint.value as? ConstraintValue.AnythingArrayValue)
                         ?.value
                         ?.any {
-                            Log.d("Rule evaluation", "in value $it left $left")
                             when (it) {
                                 is ArrayValue.StringValue -> it.value == left
                                 is ArrayValue.IntegerValue -> it.value == (left as? Number)?.toLong()
                                 is ArrayValue.SemverValue -> {
                                     try {
                                         val leftString = left as? String ?: return false
-                                        val leftVersion = Version.parse(leftString)
-                                        val rightVersion = Version.parse(it.value)
-                                        leftVersion.compareToIgnoreBuildMetadata(rightVersion) == 0
+                                        compareSemver(leftString, it.value) == 0
                                     } catch (e: Exception) {
                                         false
                                     }
@@ -321,9 +318,7 @@ class EdgeEvaluator(
                             }
                         }
                         ?: false
-                ).also {
-                    Log.d("Rule evaluation", "in value $it")
-                }
+                )
             }
 
             Operator.Eq -> eq(left, constraint.value)
@@ -348,9 +343,7 @@ class EdgeEvaluator(
             is ConstraintValue.StringValue -> {
                 try {
                     val leftString = left as? String ?: return false
-                    val leftVersion = Version.parse(leftString)
-                    val rightVersion = Version.parse(right.value)
-                    return leftVersion.compareToIgnoreBuildMetadata(rightVersion) == 0
+                    return compareSemver(leftString, right.value) == 0
                 } catch (e: Exception) {
                     return left is String && left == right.value
                 }
@@ -371,9 +364,7 @@ class EdgeEvaluator(
                 // use java-semver library to compare semver strings
                 try {
                     val leftString = left as? String ?: return null
-                    val leftVersion = Version.parse(leftString)
-                    val rightVersion = Version.parse(right.value)
-                    return leftVersion.compareToIgnoreBuildMetadata(rightVersion)
+                    return compareSemver(leftString, right.value)
                 } catch (e: Exception) {
                     return null
                 }
@@ -381,6 +372,19 @@ class EdgeEvaluator(
 
             else -> null
         }
+    }
+
+    /**
+     * Compares two semver version strings, ignoring build metadata.
+     * @param left The left version string to compare
+     * @param right The right version string to compare
+     * @return A negative integer if left < right, zero if left == right, or a positive integer if left > right
+     * @throws Exception if either version string cannot be parsed as a valid semver
+     */
+    private fun compareSemver(left: String, right: String): Int {
+        val leftVersion = Version.parse(left)
+        val rightVersion = Version.parse(right)
+        return leftVersion.compareToIgnoreBuildMetadata(rightVersion)
     }
 
     private fun Any?.toDoubleOrNull(): Double? =

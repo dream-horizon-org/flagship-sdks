@@ -212,7 +212,7 @@ object ArrayValueSerializer : KSerializer<ArrayValue> {
         return when {
             element is JsonPrimitive && element.isString -> {
                 try {
-                    Version.valueOf(element.content)
+                    Version.parse(element.content)
                     return ArrayValue.SemverValue(element.content)
                 } catch (e: Exception) {
                     return ArrayValue.StringValue(element.content)
