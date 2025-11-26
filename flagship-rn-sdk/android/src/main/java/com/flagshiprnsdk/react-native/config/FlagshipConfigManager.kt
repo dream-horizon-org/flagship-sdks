@@ -1,7 +1,6 @@
 package com.flagshiprnsdk.config
 
 import android.app.Application
-import android.util.Log
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReactApplicationContext
 import com.flagship.sdk.facade.FlagShipConfig
@@ -16,7 +15,6 @@ data class FlagshipRnSdkConfig(
 )
 
 object FlagshipConfigManager {
-    private const val TAG = "FlagshipSdk"
     private var config: FlagshipRnSdkConfig? = null
 
     fun getConfig(): FlagshipRnSdkConfig? = config
@@ -26,7 +24,6 @@ object FlagshipConfigManager {
         configMap: ReadableMap,
     ) {
         if (FlagshipState.isInitialized()) {
-            Log.i(TAG, "SDK already initialized from native or previous call")
             return
         }
 
@@ -59,7 +56,6 @@ object FlagshipConfigManager {
         OpenFeatureAPI.setProvider(provider)
 
         FlagshipState.markInitialized()
-        Log.i(TAG, "Initialized from React Native with baseUrl=$baseUrl, refreshInterval=${refreshIntervalSeconds}s")
     }
 }
 

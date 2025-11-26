@@ -48,11 +48,11 @@ object FlagshipSdk {
         }
     }
 
-    fun setContext(targetingKey: String, attributes: Map<String, Any?> = emptyMap()): Boolean {
+    fun setContext(targetingKey: String, context: Map<String, Any?> = emptyMap()): Boolean {
         return try {
             val contextAttributes = mutableMapOf<String, Value>()
 
-            attributes.forEach { (key, value) ->
+            context.forEach { (key, value) ->
                 val convertedValue = convertAnyToValue(value)
                 contextAttributes[key] = convertedValue
             }
