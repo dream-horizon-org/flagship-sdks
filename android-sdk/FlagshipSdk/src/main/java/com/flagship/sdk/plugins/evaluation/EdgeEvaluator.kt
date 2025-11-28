@@ -113,7 +113,7 @@ class EdgeEvaluator(
             for (rule in config.rules) {
                 val isMatch = checkRuleConstraints(rule, context)
                 if (isMatch) {
-                    if (rule.allocations.isNullOrEmpty()) {
+                    if (rule.allocations.isEmpty()) {
                         return@run EvaluationResult(value = defaultValue, reason = Reason.ERROR)
                     }
                     val allocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, rule.allocations, rule.ruleName)
@@ -124,7 +124,7 @@ class EdgeEvaluator(
 
             val defaultRule = config.defaultRule
             if (defaultRule != null) {
-                if (defaultRule.allocation.isNullOrEmpty()) {
+                if (defaultRule.allocation.isEmpty()) {
                     return@run EvaluationResult(value = defaultValue, reason = Reason.ERROR)
                 }
                 val defaultAllocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, defaultRule.allocation, defaultRule.ruleName)
@@ -227,7 +227,7 @@ class EdgeEvaluator(
             for (rule in config.rules) {
                 val isMatch = checkRuleConstraints(rule, context)
                 if (isMatch) {
-                    if (rule.allocations.isNullOrEmpty()) {
+                    if (rule.allocations.isEmpty()) {
                         return@run EvaluationResult(value = defaultValue, reason = Reason.ERROR)
                     }
                     val allocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, rule.allocations, rule.ruleName)
@@ -238,7 +238,7 @@ class EdgeEvaluator(
 
             val defaultRule = config.defaultRule
             if (defaultRule != null) {
-                if (defaultRule.allocation.isNullOrEmpty()) {
+                if (defaultRule.allocation.isEmpty()) {
                     return@run EvaluationResult(value = defaultValue, reason = Reason.ERROR)
                 }
                 val defaultAllocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, defaultRule.allocation, defaultRule.ruleName)
@@ -296,7 +296,7 @@ class EdgeEvaluator(
 
             val defaultRule = config.defaultRule
             if (defaultRule != null) {
-                if (defaultRule.allocation.isNullOrEmpty()) {
+                if (defaultRule.allocation.isEmpty()) {
                     return@run EvaluationResult(value = defaultValue, reason = Reason.ERROR)
                 }
                 val defaultAllocation = AllocationUtility.allocationBucketFor(flagKey, targetingKey, defaultRule.allocation, defaultRule.ruleName)

@@ -355,7 +355,7 @@ class EdgeEvaluatorTest {
 
         // Then
         assertEquals(defaultValue, result.value)
-        assertEquals(Reason.DEFAULT, result.reason)
+        assertEquals(Reason.INVALID_FEATURE, result.reason)
     }
 
     @Test
