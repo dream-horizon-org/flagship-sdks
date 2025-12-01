@@ -79,9 +79,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DEFAULT, result.reason)
-        // Verify that put was NOT called since reason is DEFAULT
-        // put should not be called for DEFAULT reason - we can't easily verify "not called" in mockk
-        // but the test passes if put is not called, which is the expected behavior
     }
 
     @Test
@@ -193,9 +190,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DEFAULT, result.reason)
-        // Verify that put was NOT called since reason is DEFAULT
-        // put should not be called for DEFAULT reason - we can't easily verify "not called" in mockk
-        // but the test passes if put is not called, which is the expected behavior
     }
 
     @Test
@@ -212,7 +206,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DISABLED, result.reason)
-        // Verify that put WAS called since reason is DISABLED (not DEFAULT)
         verify { evaluateCache.put(flagKey, defaultValue) }
     }
 
@@ -277,7 +270,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DEFAULT, result.reason)
-        // put should not be called for DEFAULT reason
     }
 
     @Test
@@ -301,7 +293,6 @@ class EdgeEvaluatorTest {
         assertEquals("from_default", result.value)
         assertEquals("var_str", result.variant)
         assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
-        // Verify that put WAS called since reason is DEFAULT_TARGETING_MATCH (not DEFAULT)
         verify { evaluateCache.put(flagKey, "from_default") }
     }
 
@@ -365,7 +356,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DEFAULT, result.reason)
-        // put should not be called for DEFAULT reason
     }
 
     @Test
@@ -387,7 +377,6 @@ class EdgeEvaluatorTest {
         assertEquals(11, result.value)
         assertEquals("var_int", result.variant)
         assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
-        // Verify that put WAS called since reason is DEFAULT_TARGETING_MATCH (not DEFAULT)
         verify { evaluateCache.put(flagKey, 11) }
     }
 
@@ -451,7 +440,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value, 0.001)
         assertEquals(Reason.DEFAULT, result.reason)
-        // put should not be called for DEFAULT reason
     }
 
     @Test
@@ -473,7 +461,6 @@ class EdgeEvaluatorTest {
         assertEquals(2.5, result.value, 0.001)
         assertEquals("var_dbl", result.variant)
         assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
-        // Verify that put WAS called since reason is DEFAULT_TARGETING_MATCH (not DEFAULT)
         verify { evaluateCache.put(flagKey, 2.5) }
     }
 
@@ -544,7 +531,6 @@ class EdgeEvaluatorTest {
         // Then
         assertEquals(defaultValue, result.value)
         assertEquals(Reason.DEFAULT, result.reason)
-        // put should not be called for DEFAULT reason
     }
 
     @Test
@@ -567,7 +553,6 @@ class EdgeEvaluatorTest {
         assertEquals(mapOf("k" to "v"), result.value)
         assertEquals("var_obj", result.variant)
         assertEquals(Reason.DEFAULT_TARGETING_MATCH, result.reason)
-        // Verify that put WAS called since reason is DEFAULT_TARGETING_MATCH (not DEFAULT)
         verify { evaluateCache.put(flagKey, any<Map<String, Any>>()) }
     }
 
