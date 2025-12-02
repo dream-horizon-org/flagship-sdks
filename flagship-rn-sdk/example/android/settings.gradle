@@ -4,3 +4,10 @@ extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autoli
 rootProject.name = 'flagshiprnsdk.example'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// Include entire android-sdk as composite build (preserves version catalog)
+includeBuild('../../../android-sdk') {
+    dependencySubstitution {
+        substitute module('com.dream11:flagship-sdk') using project(':FlagshipSdk')
+    }
+}

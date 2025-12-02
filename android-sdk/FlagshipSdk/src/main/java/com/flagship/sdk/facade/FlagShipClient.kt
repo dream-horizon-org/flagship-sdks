@@ -20,6 +20,9 @@ class FlagShipClient(
     private var evaluator: IEvaluator? = null
 
     init {
+        Log.d("Flagship", "========================================")
+        Log.d("Flagship", "FLAGSHIP SDK - LOCAL BUILD")
+        Log.d("Flagship", "========================================")
         SdkScope.init()
         registry = Registry(domain, config, SdkScope.scope)
         registry.create()
