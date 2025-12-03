@@ -5,32 +5,24 @@ on:
     tags:
       - 'android-v*.*.*'
 
-concurrency:
-  group: release-android-${{ github.ref_name }}
-  cancel-in-progress: true
-
 jobs:
   release:
     name: Build and Publish Android SDK
     runs-on: ubuntu-latest
-    
-    permissions:
-      contents: read
-      id-token: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version from Git tag (strip leading 'android-v' if exists)
+      - name: Extract version from Git tag
         id: version
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          VERSION="${TAG#android-v}" # removes 'android-v' prefix if present
+          VERSION="${TAG#android-v}"
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
-
 
       - name: Extract version from build.gradle.kts
         id: gradle_version
@@ -38,17 +30,15 @@ jobs:
           GRADLE_VERSION=$(grep 'val sdkVersion' android-sdk/FlagshipSdk/build.gradle.kts | cut -d'"' -f2)
           echo "GRADLE_VERSION=$GRADLE_VERSION" >> $GITHUB_ENV
 
-      - name: Check if version already exists on Maven Central
+      - name: Validate code version is less than tag version
         run: |
-          GROUP_ID="com.dream11"
-          ARTIFACT_ID="flagship-sdk"
-          MAVEN_URL="https://repo1.maven.org/maven2/${GROUP_ID//.//}/${ARTIFACT_ID}/${RELEASE_VERSION}/${ARTIFACT_ID}-${RELEASE_VERSION}.pom"
-          
-          if curl --silent --head --fail "$MAVEN_URL" > /dev/null 2>&1; then
-            echo "Version $RELEASE_VERSION already exists on Maven Central."
-            exit 1
-          fi
-          echo "Version $RELEASE_VERSION is available on Maven Central"
+          IFS='.' read -ra CODE <<< "$GRADLE_VERSION"
+          IFS='.' read -ra TAG <<< "$RELEASE_VERSION"
+          for i in 0 1 2; do
+            [[ ${CODE[$i]:-0} -lt ${TAG[$i]:-0} ]] && exit 0
+            [[ ${CODE[$i]:-0} -gt ${TAG[$i]:-0} ]] && { echo "Code version ($GRADLE_VERSION) must be < tag version ($RELEASE_VERSION)"; exit 1; }
+          done
+          echo "Code version ($GRADLE_VERSION) must be < tag version ($RELEASE_VERSION)"; exit 1
 
       - name: Set build.gradle.kts version (without git tag)
         run: |
@@ -88,3 +78,8 @@ jobs:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GPG_KEY_ID }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
+
+      - name: Bump version to next SNAPSHOT
+        run: |
+          chmod +x scripts/bump-version.sh
+          ./scripts/bump-version.sh android "$RELEASE_VERSION"
