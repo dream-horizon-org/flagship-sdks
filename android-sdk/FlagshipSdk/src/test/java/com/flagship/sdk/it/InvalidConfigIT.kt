@@ -61,7 +61,7 @@ class InvalidConfigIT {
         )
 
         // Initialize FlagShipClient
-        flagshipClient = FlagShipClient.getInstance("test-domain", config)
+        flagshipClient = FlagShipClient.getInstance("test-domain-1", config)
 
         // Set the context
         flagshipClient.onContextChange(emptyMap(), defaultContext)

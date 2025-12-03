@@ -72,7 +72,7 @@ class RuleEvaluationIT {
         )
 
         // Initialize FlagShipClient
-        flagshipClient = FlagShipClient.getInstance("test-domain", config)
+        flagshipClient = FlagShipClient.getInstance("test-domain-2", config)
 
         // Set the context
         flagshipClient.onContextChange(emptyMap(), defaultContext)
