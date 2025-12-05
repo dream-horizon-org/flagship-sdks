@@ -67,7 +67,7 @@ data class Feature(
      * Epoch timestamp (in seconds) when the flag was last updated
      */
     @SerialName("updated_at")
-    val updatedAt: Double,
+    val updatedAt: Long,
     /**
      * Variants of the flag. All variants will have the same value type
      */
