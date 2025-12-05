@@ -7,6 +7,8 @@ plugins {
     id("signing")
 }
 
+val sdkVersion = "0.0.67"
+
 val localPropertiesFile = rootProject.file("local.properties")
 val localProperties = mutableMapOf<String, String>()
 
@@ -98,6 +100,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.mockk:mockk:1.14.6")
+    testImplementation(libs.wiremock.jre8)
     
     // Exclude JUnit 4 from transitive dependencies
     configurations.testImplementation.get().exclude(group = "junit", module = "junit")
@@ -111,7 +114,7 @@ publishing {
         create<MavenPublication>("bar") {
             groupId = "com.dream11"
             artifactId = "flagship-sdk"
-            version = "0.0.67"
+            version = sdkVersion
             artifact("${layout.buildDirectory.get()}/outputs/aar/FlagshipSdk-release.aar")
 
             pom {
