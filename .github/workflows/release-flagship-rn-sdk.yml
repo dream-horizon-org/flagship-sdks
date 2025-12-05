@@ -15,13 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish Flagship RN SDK to npm
 
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,25 +34,24 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG#rnsdk-v}" # removes 'rnsdk-v' prefix if present
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "🔖 Release version: $VERSION"
 
       - name: Validate version format
         run: |
           if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid version format: $RELEASE_VERSION"
+            echo "Invalid version format: $RELEASE_VERSION"
             exit 1
           fi
 
-      - name: Check if version already exists on npm
+      - name: Validate code version is less than tag version
         run: |
-          cd flagship-rn-sdk
-          PACKAGE_NAME=$(jq -r .name package.json)
-          echo "Checking package: $PACKAGE_NAME"
-          if npm view "$PACKAGE_NAME@$RELEASE_VERSION" > /dev/null 2>&1; then
-            echo "❌ Version $RELEASE_VERSION already exists on npm."
-            exit 1
-          fi
-          echo "✅ Version $RELEASE_VERSION is available"
+          CODE_VERSION=$(jq -r .version flagship-rn-sdk/package.json)
+          IFS='.' read -ra CODE <<< "$CODE_VERSION"
+          IFS='.' read -ra TAG <<< "$RELEASE_VERSION"
+          for i in 0 1 2; do
+            [[ ${CODE[$i]:-0} -lt ${TAG[$i]:-0} ]] && exit 0
+            [[ ${CODE[$i]:-0} -gt ${TAG[$i]:-0} ]] && { echo "Code version ($CODE_VERSION) must be < tag version ($RELEASE_VERSION)"; exit 1; }
+          done
+          echo "Code version ($CODE_VERSION) must be < tag version ($RELEASE_VERSION)"; exit 1
 
       - name: Set package.json version (without git tag)
         run: |
@@ -81,4 +79,9 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Bump version to next SNAPSHOT
+        run: |
+          chmod +x scripts/bump-version.sh
+          ./scripts/bump-version.sh rnsdk "$RELEASE_VERSION"
 
