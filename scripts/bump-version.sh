@@ -39,7 +39,7 @@ case "$SDK_TYPE" in
   ios)
     FILE="ios-sdk/FlagshipFeatureFlags/FlagshipFeatureFlags.podspec"
     # iOS releases always run on macOS runners, so always use macOS sed syntax
-    sed -i '' -E "s/s\.version *= *'[^']+'/s.version          = '${NEW_VERSION}'/" "$FILE"
+      sed -i '' -E "s/s\.version *= *'[^']+'/s.version          = '${NEW_VERSION}'/" "$FILE"
     ;;
   *)
     echo "Unknown sdk-type: $SDK_TYPE"
