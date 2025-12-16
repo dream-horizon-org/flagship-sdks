@@ -79,13 +79,14 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
 
-      - name: Checkout main branch for bump
+      - name: Discard version changes and checkout main for bump
         run: |
+          git restore android-sdk/FlagshipSdk/build.gradle.kts
           git fetch origin main
           git checkout main
           git pull origin main
 
-      - name: Bump version to next SNAPSHOT
+      - name: Bump version
         run: |
           chmod +x scripts/bump-version.sh
           ./scripts/bump-version.sh android "$RELEASE_VERSION"
