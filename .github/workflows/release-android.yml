@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.COMMIT_ACCESS_TOKEN }}
 
       - name: Extract version from Git tag
         id: version
@@ -78,6 +78,12 @@ jobs:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GPG_KEY_ID }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
+
+      - name: Checkout main branch for bump
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull origin main
 
       - name: Bump version to next SNAPSHOT
         run: |
