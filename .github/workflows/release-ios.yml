@@ -71,20 +71,14 @@ jobs:
           # Update source_files path for monorepo (relative to repo root)
           sed -i '' "s|s.source_files = 'FlagshipFeatureFlags/Classes/\*\*/\*'|s.source_files = 'ios-sdk/FlagshipFeatureFlags/FlagshipFeatureFlags/Classes/**/*'|" FlagshipFeatureFlags.podspec
 
-      - name: Commit and retag
-        run: |
-          git add ios-sdk/FlagshipFeatureFlags/FlagshipFeatureFlags.podspec
-          git commit -m "chore: update podspec to $RELEASE_VERSION for release"
-          git tag -f "ios-v$RELEASE_VERSION"
-          git push origin "ios-v$RELEASE_VERSION" --force
-
       - name: Push to CocoaPods trunk
         run: |
           cd ios-sdk/FlagshipFeatureFlags
           pod trunk push FlagshipFeatureFlags.podspec --allow-warnings
 
-      - name: Checkout main for bump
+      - name: Discard podspec changes and checkout main for bump
         run: |
+          git restore ios-sdk/FlagshipFeatureFlags/FlagshipFeatureFlags.podspec
           git checkout main
           git pull origin main
 
