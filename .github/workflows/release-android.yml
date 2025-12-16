@@ -85,7 +85,7 @@ jobs:
           git checkout main
           git pull origin main
 
-      - name: Bump version to next SNAPSHOT
+      - name: Bump version
         run: |
           chmod +x scripts/bump-version.sh
           ./scripts/bump-version.sh android "$RELEASE_VERSION"
