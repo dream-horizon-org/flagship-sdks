@@ -7,7 +7,7 @@ plugins {
     id("signing")
 }
 
-val sdkVersion = "0.0.75"
+val sdkVersion = "0.0.76"
 
 val localPropertiesFile = rootProject.file("local.properties")
 val localProperties = mutableMapOf<String, String>()
