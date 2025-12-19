@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules } from 'react-native';
-import { multiply, initialize, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue } from '@d11/flagship-rn-sdk';
+import { multiply, initializeAsync, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue } from '@d11/flagship-rn-sdk';
 
 const { NativeNavigation } = NativeModules;
 
@@ -18,11 +18,11 @@ export default function App() {
 
   const handleInitialize = async () => {
     try {
-      const baseUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
-      await initialize({
+      const baseUrl = 'https://dream11.flagshiphq.io';
+      await initializeAsync({
         baseUrl,
-        flagshipApiKey: 'tenant1',
-        refreshInterval: 10,
+        flagshipApiKey: 'XPCkqeT39sOH5WIUUvljJ11QhRjw6QeE',
+        refreshInterval: 20,
       });
       setIsInitialized(true);
       console.log('FlagshipRnSdk initialized successfully');
