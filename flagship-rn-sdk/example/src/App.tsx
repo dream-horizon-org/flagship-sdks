@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules } from 'react-native';
-import { multiply, initializeAsync, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue } from '@d11/flagship-rn-sdk';
+import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeSync } from '@d11/flagship-rn-sdk';
 
 const { NativeNavigation } = NativeModules;
 
@@ -18,10 +18,10 @@ export default function App() {
 
   const handleInitialize = async () => {
     try {
-      const baseUrl = 'https://dream11.flagshiphq.io';
-      await initializeAsync({
+      const baseUrl = 'temp';
+      await initializeSync({
         baseUrl,
-        flagshipApiKey: 'XPCkqeT39sOH5WIUUvljJ11QhRjw6QeE',
+        flagshipApiKey: 'temp',
         refreshInterval: 20,
       });
       setIsInitialized(true);
