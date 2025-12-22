@@ -12,13 +12,13 @@ class FlagshipRnSdkImpl: NSObject {
     return NSNumber(value: a * b)
   }
   
-  @objc(initialize:resolve:reject:)
-  func initialize(
+  @objc(initializeAsync:resolve:reject:)
+  func initializeAsync(
     _ config: NSDictionary,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
-    DispatchQueue.main.async {
+    DispatchQueue.global(qos: .userInitiated).async {
       if FlagshipState.shared.isInitialized {
         resolve(true)
         return
@@ -51,6 +51,39 @@ class FlagshipRnSdkImpl: NSObject {
       } catch let error {
         reject("INIT_ERROR", "Initialization failed: \(error.localizedDescription)", error)
       }
+    }
+  }
+  
+  @objc
+  func initializeSync(_ config: NSDictionary) -> NSNumber {
+    if FlagshipState.shared.isInitialized {
+      return NSNumber(value: true)
+    }
+    
+    guard let baseUrl = config["baseUrl"] as? String, !baseUrl.isEmpty else {
+      return NSNumber(value: false)
+    }
+    
+    guard let flagshipApiKey = config["flagshipApiKey"] as? String, !flagshipApiKey.isEmpty else {
+      return NSNumber(value: false)
+    }
+    
+    let refreshInterval = config["refreshInterval"] as? TimeInterval ?? 10.0
+    
+    do {
+      let flagshipConfig = FlagshipFeatureConfig(
+        baseURL: baseUrl,
+        refreshInterval: refreshInterval,
+        flagshipApiKey: flagshipApiKey
+      )
+      
+      let provider = FlagshipOpenFeatureProvider(config: flagshipConfig)
+      OpenFeatureAPI.shared.setProvider(provider: provider)
+      
+      FlagshipState.shared.markInitialized()
+      return NSNumber(value: true)
+    } catch {
+      return NSNumber(value: false)
     }
   }
   

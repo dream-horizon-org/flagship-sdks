@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules } from 'react-native';
-import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeSync } from '@d11/flagship-rn-sdk';
+import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeAsync } from '@d11/flagship-rn-sdk';
 
 const { NativeNavigation } = NativeModules;
 
@@ -16,10 +16,10 @@ export default function App() {
   const [doubleValue, setDoubleValue] = useState<number | null>(null);
   const [objectValue, setObjectValue] = useState<any | null>(null);
 
-  const handleInitialize = async () => {
+  const handleInitialize =  async() => {
     try {
       const baseUrl = 'temp';
-      await initializeSync({
+      await initializeAsync({
         baseUrl,
         flagshipApiKey: 'temp',
         refreshInterval: 20,
