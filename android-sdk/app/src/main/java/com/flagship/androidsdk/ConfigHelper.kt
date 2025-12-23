@@ -21,8 +21,8 @@ object ConfigHelper {
         } catch (e: IOException) {
             // Fallback to default values if config file is not found
             Config(
-                baseUrl = "https://dream11.flagshiphq.io",
-                flagshipApiKey = "XPCkqeT39sOH5WIUUvljJ11QhRjw6QeE"
+                baseUrl = "http://10.0.2.2:8080",
+                flagshipApiKey = "tenant1"
             )
         }
     }

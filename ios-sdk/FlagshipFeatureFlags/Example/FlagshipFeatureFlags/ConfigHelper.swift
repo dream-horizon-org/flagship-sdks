@@ -19,8 +19,8 @@ struct ConfigHelper {
               let config = try? JSONDecoder().decode(Config.self, from: data) else {
             // Fallback to default values if config file is not found
             return Config(
-                baseUrl: "https://dream11.flagshiphq.io",
-                flagshipApiKey: "XPCkqeT39sOH5WIUUvljJ11QhRjw6QeE"
+                baseUrl: "https://localhost:8080",
+                flagshipApiKey: "tenant1"
             )
         }
         return config
