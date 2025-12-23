@@ -5,8 +5,12 @@ export function multiply(a: number, b: number): number {
   return FlagshipRnSdk.multiply(a, b);
 }
 
-export async function initialize(config: Object): Promise<boolean> {
-  return await FlagshipRnSdk.initialize(config);
+export async function initializeAsync(config: Object): Promise<boolean> {
+  return await FlagshipRnSdk.initializeAsync(config);
+}
+
+export function initializeSync(config: Object): boolean {
+  return FlagshipRnSdk.initializeSync(config);
 }
 
 export function setContext(context: SetContextConfig): boolean {

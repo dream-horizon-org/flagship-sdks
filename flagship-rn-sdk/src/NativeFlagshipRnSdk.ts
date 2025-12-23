@@ -3,7 +3,8 @@ import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
   multiply(a: number, b: number): number;
-  initialize(config: Object): Promise<boolean>;
+  initializeAsync(config: Object): Promise<boolean>;
+  initializeSync(config: Object): boolean;
   setContext(context: Object): boolean;
   getBooleanValue(key: string, defaultValue: boolean): boolean;
   getStringValue(key: string, defaultValue: string): string;

@@ -19,8 +19,13 @@ class FlagshipRnSdkModule(
   fun multiply(a: Double, b: Double): Double = flagshipRnSdkModuleImpl.multiply(a, b)
 
   @ReactMethod
-  fun initialize(config: ReadableMap, promise: Promise) {
-    flagshipRnSdkModuleImpl.initialize(config, promise)
+  fun initializeAsync(config: ReadableMap, promise: Promise) {
+    flagshipRnSdkModuleImpl.initializeAsync(config, promise)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun initializeSync(config: ReadableMap): Boolean {
+    return flagshipRnSdkModuleImpl.initializeSync(config)
   }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
