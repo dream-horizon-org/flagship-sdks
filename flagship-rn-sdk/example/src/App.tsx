@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules } from 'react-native';
 import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeAsync } from '@d11/flagship-rn-sdk';
+import config from './config.json';
 
 const { NativeNavigation } = NativeModules;
 
@@ -18,10 +19,10 @@ export default function App() {
 
   const handleInitialize =  async() => {
     try {
-      const baseUrl = 'temp';
+      const baseUrl = config.baseUrl;
       await initializeAsync({
         baseUrl,
-        flagshipApiKey: 'temp',
+        flagshipApiKey: config.flagshipApiKey, 
         refreshInterval: 20,
       });
       setIsInitialized(true);
