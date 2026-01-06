@@ -27,7 +27,7 @@ class FlagshipRnSdkModuleImpl(
   ) {
     backgroundScope.launch {
       try {
-        FlagshipConfigManager.initialize(reactContext, config)
+        FlagshipConfigManager.initializeAsync(reactContext, config)
         promise?.resolve(true)
       } catch (e: Exception) {
         promise?.reject("INIT_ERROR", e.message ?: "Initialization failed", e)

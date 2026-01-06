@@ -93,7 +93,7 @@ export default function App() {
         style={styles.button}
         onPress={() => {
           try {
-            const value = getBooleanValue('dark_mode_toggle', false);
+            const value = getBooleanValue('should_enable_vmax_sdk', false);
             setDarkModeEnabled(value);
             console.log('FlagshipRnSdk getBooleanValue dark_mode_toggle:', value);
           } catch (error) {
