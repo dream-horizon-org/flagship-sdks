@@ -192,9 +192,6 @@ tasks.register("cleanBuildPublishFlagship") {
     rootProject.tasks.findByName("closeSonatypeStagingRepository")?.let {
         dependsOn(it)
     }
-    rootProject.tasks.findByName("releaseSonatypeStagingRepository")?.let {
-        dependsOn(it)
-    }
 }
 
 afterEvaluate {
