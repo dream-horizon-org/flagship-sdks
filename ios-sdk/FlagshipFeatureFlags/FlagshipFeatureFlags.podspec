@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'MIT', :file => 'ios-sdk/FlagshipFeatureFlags/LICENSE' }
   s.author           = { '210496608' => 'atharva.kothawade@dream11.com' }
   s.source           = { :git => 'https://github.com/ds-horizon/flagship-sdks.git', :tag => "ios-v#{s.version}" }
-  s.source_files = 'ios-sdk/FlagshipFeatureFlags/FlagshipFeatureFlags/Classes/**/*'
+  s.source_files = 'FlagshipFeatureFlags/Classes/**/*'
   
   s.ios.deployment_target = '14.0'
   s.swift_version = '5.5'
