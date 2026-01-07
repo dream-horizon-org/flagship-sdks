@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules } from 'react-native';
-import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeAsync } from '@d11/flagship-rn-sdk';
+import { useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Platform, NativeModules, ScrollView } from 'react-native';
+import { multiply, setContext, getBooleanValue, getStringValue, getIntegerValue, getDoubleValue, getObjectValue, initializeAsync, initializeSync } from '@d11/flagship-rn-sdk';
 import config from './config.json';
 
 const { NativeNavigation } = NativeModules;
@@ -11,13 +11,39 @@ export default function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
   const [contextSet, setContextSet] = useState<boolean | null>(null);
+  const [syncTestResult, setSyncTestResult] = useState<string | null>(null);
+  const [asyncTestResult, setAsyncTestResult] = useState<string | null>(null);
   const [darkModeEnabled, setDarkModeEnabled] = useState<boolean | null>(null);
   const [stringValue, setStringValue] = useState<string | null>(null);
   const [integerValue, setIntegerValue] = useState<number | null>(null);
   const [doubleValue, setDoubleValue] = useState<number | null>(null);
   const [objectValue, setObjectValue] = useState<any | null>(null);
 
-  const handleInitialize =  async() => {
+  const testSyncInit = () => {
+    const startTime = Date.now();
+    try {
+      const baseUrl = config.baseUrl;
+      const success = initializeSync({
+        baseUrl,
+        flagshipApiKey: config.flagshipApiKey, 
+        refreshInterval: 20,
+      });
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      setSyncTestResult(`✓ Success in ${duration}ms`);
+      setIsInitialized(success);
+      console.log(`[SYNC] Initialized in ${duration}ms`);
+    } catch (error: any) {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      setSyncTestResult(`✗ Failed in ${duration}ms: ${error.message}`);
+      setInitError(error.message || 'Initialization failed');
+      console.error('[SYNC] Initialization failed:', error);
+    }
+  };
+
+  const testAsyncInit = async () => {
+    const startTime = Date.now();
     try {
       const baseUrl = config.baseUrl;
       await initializeAsync({
@@ -25,11 +51,17 @@ export default function App() {
         flagshipApiKey: config.flagshipApiKey, 
         refreshInterval: 20,
       });
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      setAsyncTestResult(`✓ Success in ${duration}ms`);
       setIsInitialized(true);
-      console.log('FlagshipRnSdk initialized successfully');
+      console.log(`[ASYNC] Initialized in ${duration}ms`);
     } catch (error: any) {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      setAsyncTestResult(`✗ Failed in ${duration}ms: ${error.message}`);
       setInitError(error.message || 'Initialization failed');
-      console.error('FlagshipRnSdk initialization failed:', error);
+      console.error('[ASYNC] Initialization failed:', error);
     }
   };
 
@@ -62,33 +94,47 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    handleInitialize();
-    handleSetContext();
-  }, []);
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>Flagship RN SDK Example</Text>
       <Text style={styles.result}>Multiply Result: {result}</Text>
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusLabel}>SDK Status:</Text>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Control Panel</Text>
+        <TouchableOpacity style={[styles.button, styles.asyncButton]} onPress={testAsyncInit}>
+          <Text style={styles.buttonText}>Initialize Async</Text>
+        </TouchableOpacity>
+        {asyncTestResult && (
+          <Text style={styles.testResult}>{asyncTestResult}</Text>
+        )}
+        
+        <TouchableOpacity style={[styles.button, styles.syncButton]} onPress={testSyncInit}>
+          <Text style={styles.buttonText}>Initialize Sync</Text>
+        </TouchableOpacity>
+        {syncTestResult && (
+          <Text style={styles.testResult}>{syncTestResult}</Text>
+        )}
+        
+        <TouchableOpacity style={[styles.button, styles.contextButton]} onPress={handleSetContext}>
+          <Text style={styles.buttonText}>Set Context</Text>
+        </TouchableOpacity>
+        {contextSet !== null && (
+          <Text style={contextSet ? styles.statusSuccess : styles.statusError}>
+            Context: {contextSet ? '✓ Set' : '✗ Failed'}
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>SDK Status</Text>
         {isInitialized ? (
           <Text style={styles.statusSuccess}>✓ Initialized</Text>
         ) : initError ? (
           <Text style={styles.statusError}>✗ Error: {initError}</Text>
         ) : (
-          <Text style={styles.statusPending}>⏳ Initializing...</Text>
+          <Text style={styles.statusPending}>⏳ Not Initialized</Text>
         )}
       </View>
-      {contextSet !== null && (
-        <View style={styles.statusContainer}>
-          <Text style={styles.statusLabel}>Context Set:</Text>
-          <Text style={contextSet ? styles.statusSuccess : styles.statusError}>
-            {contextSet ? '✓ Success' : '✗ Failed'}
-          </Text>
-        </View>
-      )}
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
@@ -206,16 +252,36 @@ export default function App() {
       >
         <Text style={styles.buttonText}>Open Native {Platform.OS === 'android' ? 'Android' : 'iOS'} Screen</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
+  },
+  section: {
+    width: '100%',
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  testResult: {
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: 'center',
+    fontWeight: '600',
   },
   title: {
     fontSize: 24,
@@ -254,8 +320,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 10,
     opacity: 1,
+    width: '100%',
+  },
+  asyncButton: {
+    backgroundColor: '#4CAF50',
+  },
+  syncButton: {
+    backgroundColor: '#FF9800',
+  },
+  contextButton: {
+    backgroundColor: '#9C27B0',
   },
   buttonDisabled: {
     opacity: 0.5,
