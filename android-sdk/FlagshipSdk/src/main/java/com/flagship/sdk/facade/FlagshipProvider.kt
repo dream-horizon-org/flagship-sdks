@@ -1,6 +1,7 @@
 package com.flagship.sdk.facade
 
 import com.flagship.sdk.core.models.EvaluationResult
+import com.flagship.sdk.plugins.Repository
 import dev.openfeature.kotlin.sdk.EvaluationContext
 import dev.openfeature.kotlin.sdk.EvaluationMetadata
 import dev.openfeature.kotlin.sdk.FeatureProvider
@@ -126,7 +127,19 @@ class FlagshipProvider(
             ),
         )
 
-    override suspend fun initialize(initialContext: EvaluationContext?) = Unit
+    override suspend fun initialize(initialContext: EvaluationContext?) {
+        val repository = flagShipClient.getRepository() as? Repository ?: return
+        
+        val hasCache = repository.hasCachedData()
+        
+        if (hasCache) {
+            repository.loadCacheFromDatabase()
+        } else {
+            repository.fetchConfig(isFirstTime = true)
+        }
+        
+        flagShipClient.startPolling()
+    }
 
     override suspend fun onContextSet(
         oldContext: EvaluationContext?,

@@ -24,13 +24,17 @@ class FlagShipClient(
         SdkScope.init()
         registry = Registry(domain, config, SdkScope.scope)
         registry.create()
-        repository =
-            registry.getRepository()?.also {
-                it.init()
-            }
+        repository = registry.getRepository()
         evaluator = registry.getEvaluator()
-        registry.startPolling()
         Log.d("Flagship", "SDK INITIALIZED")
+    }
+
+    fun getRepository(): IRepository? {
+        return repository
+    }
+
+    fun startPolling() {
+        registry?.startPolling()
     }
 
     fun getBoolean(

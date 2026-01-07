@@ -28,11 +28,10 @@ class FlagshipRnSdkModuleImpl(
     backgroundScope.launch {
       try {
         FlagshipConfigManager.initializeAsync(reactContext, config)
-        promise?.resolve(true)
       } catch (e: Exception) {
-        promise?.reject("INIT_ERROR", e.message ?: "Initialization failed", e)
       }
     }
+    promise?.resolve(true)
   }
 
   fun initializeSync(config: ReadableMap): Boolean {

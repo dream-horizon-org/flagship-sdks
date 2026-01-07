@@ -7,6 +7,7 @@ import com.flagship.sdk.facade.FlagShipConfig
 import com.flagship.sdk.facade.FlagshipProvider
 import com.flagshiprnsdk.core.FlagshipState
 import dev.openfeature.kotlin.sdk.OpenFeatureAPI
+import kotlinx.coroutines.runBlocking
 
 data class FlagshipRnSdkConfig(
     val baseUrl: String,
@@ -53,7 +54,9 @@ object FlagshipConfigManager {
         )
 
         val provider = FlagshipProvider("react-native", flagShipConfig)
-        OpenFeatureAPI.setProvider(provider)
+        runBlocking {
+            OpenFeatureAPI.setProviderAndWait(provider)
+        }
 
         FlagshipState.markInitialized()
     }
@@ -92,7 +95,7 @@ object FlagshipConfigManager {
         )
 
         val provider = FlagshipProvider("react-native", flagShipConfig)
-        OpenFeatureAPI.setProviderAndWait(provider)
+        OpenFeatureAPI.setProvider(provider)
 
         FlagshipState.markInitialized()
     }
