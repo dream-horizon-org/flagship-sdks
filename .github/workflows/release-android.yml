@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.COMMIT_ACCESS_TOKEN }}
 
       - name: Extract version from Git tag
         id: version
@@ -79,7 +79,14 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSWORD }}
 
-      - name: Bump version to next SNAPSHOT
+      - name: Discard version changes and checkout main for bump
+        run: |
+          git restore android-sdk/FlagshipSdk/build.gradle.kts
+          git fetch origin main
+          git checkout main
+          git pull origin main
+
+      - name: Bump version
         run: |
           chmod +x scripts/bump-version.sh
           ./scripts/bump-version.sh android "$RELEASE_VERSION"
