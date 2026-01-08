@@ -78,10 +78,21 @@ class FlagshipRnSdkImpl: NSObject {
       )
       
       let provider = FlagshipOpenFeatureProvider(config: flagshipConfig)
-      OpenFeatureAPI.shared.setProvider(provider: provider)
       
-      FlagshipState.shared.markInitialized()
-      return NSNumber(value: true)
+      let semaphore = DispatchSemaphore(value: 0)
+      
+      Task {
+        do {
+          try await OpenFeatureAPI.shared.setProviderAndWait(provider: provider)
+          FlagshipState.shared.markInitialized()
+        } catch {
+        }
+        semaphore.signal()
+      }
+      
+      semaphore.wait()
+      
+      return NSNumber(value: FlagshipState.shared.isInitialized)
     } catch {
       return NSNumber(value: false)
     }

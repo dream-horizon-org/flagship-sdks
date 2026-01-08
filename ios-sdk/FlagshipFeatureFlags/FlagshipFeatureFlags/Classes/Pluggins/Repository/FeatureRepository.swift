@@ -23,7 +23,11 @@ public final class FeatureRepository {
         return type
     }
     
-    func loadFromCoreData(coreDataStore: CoreDataStore) {
+    func hasCachedData(coreDataStore: CoreDataStore) -> Bool {
+        return coreDataStore.getFeatureFlagRulesConfig(for: "feature_flags") != nil
+    }
+    
+    func loadCacheFromDatabase(coreDataStore: CoreDataStore) {
         if let configData = coreDataStore.getFeatureFlagRulesConfig(for: "feature_flags") {
             updateFeaturesMap(from: configData)
             updateContextFieldsMap(from: configData)

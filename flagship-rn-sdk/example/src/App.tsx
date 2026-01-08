@@ -26,7 +26,7 @@ export default function App() {
       const success = initializeSync({
         baseUrl,
         flagshipApiKey: config.flagshipApiKey, 
-        refreshInterval: 20,
+        refreshInterval: 5,
       });
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -49,7 +49,7 @@ export default function App() {
       await initializeAsync({
         baseUrl,
         flagshipApiKey: config.flagshipApiKey, 
-        refreshInterval: 20,
+        refreshInterval: 5,
       });
       const endTime = Date.now();
       const duration = endTime - startTime;

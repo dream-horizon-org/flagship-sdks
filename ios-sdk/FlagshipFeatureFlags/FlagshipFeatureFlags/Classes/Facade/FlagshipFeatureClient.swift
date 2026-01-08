@@ -30,8 +30,14 @@ public final class FlagshipFeatureClient {
         )
 
         FlagshipFeatureConfigManager.shared.setConfig(config)
-        
+    }
+    
+    public func startPolling() {
         evaluationManager.startPolling()
+    }
+    
+    func getEvaluationManager() -> FlagshipEvaluationManager {
+        return evaluationManager
     }
 
     // MARK: - Flag Evaluation Methods
