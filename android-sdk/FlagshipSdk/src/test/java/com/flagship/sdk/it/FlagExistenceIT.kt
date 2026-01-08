@@ -18,9 +18,11 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.Arguments
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import com.flagship.sdk.plugins.Repository
 import java.util.concurrent.TimeUnit
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -72,6 +74,9 @@ class FlagExistenceIT {
 
             // Set the context
             flagshipClient.onContextChange(emptyMap(), defaultContext)
+            
+            // Start polling
+            flagshipClient.startPolling()
     }
 
     @AfterAll
@@ -92,12 +97,19 @@ class FlagExistenceIT {
             )
         }
     }
+    
+    private fun syncFlags() {
+        runBlocking {
+            val repository = flagshipClient.getRepository() as? Repository
+            repository?.syncFlags()
+        }
+    }
 
     @Test
     fun `should return input value when feature does not exist`() {
         // Test the flag does not exist
         configureWireMock()
-        Thread.sleep(100);
+        syncFlags()
 
         val flag = flagshipClient.getInt("test-flag", 69, "test-flag", defaultContext)
         assertEquals(69, flag.value)
@@ -108,7 +120,7 @@ class FlagExistenceIT {
     fun `should return input value when feature type does not match`() {
         // Test the flag does not exist
         configureWireMock()
-        Thread.sleep(100);
+        syncFlags()
 
         val flag = flagshipClient.getBoolean("simple-feature", false, "simple-feature", defaultContext)
         assertEquals(false, flag.value)
@@ -120,7 +132,7 @@ class FlagExistenceIT {
         MockUtils.stubWireMockFeatureConfig {
             MockUtils.createFeatureWithEmptyVariants("empty-variants-feature")
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt("empty-variants-feature", 42, "empty-variants-feature", defaultContext)
         assertEquals(42, flag.value)
@@ -132,7 +144,7 @@ class FlagExistenceIT {
         MockUtils.stubWireMockFeatureConfig {
             MockUtils.createFeatureWithMissingVariantValue("missing-variant-value-feature")
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt("missing-variant-value-feature", 42, "missing-variant-value-feature", defaultContext)
         assertEquals(42, flag.value)
@@ -147,7 +159,7 @@ class FlagExistenceIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt("disabled-feature", 42, "disabled-feature", defaultContext)
         assertEquals(42, flag.value)
@@ -162,7 +174,7 @@ class FlagExistenceIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt("no-rules-feature", 42, "no-rules-feature", defaultContext)
         // Should return the default variant value from the feature (variant-a = 100)
@@ -193,7 +205,7 @@ class FlagExistenceIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
         
         val flag = flagshipClient.getInt(flagKey, 42, targetingKeyOutsideRollout, defaultContext)
         assertEquals(42, flag.value)
@@ -211,7 +223,7 @@ class FlagExistenceIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
         
         // Any targeting key should return default with Reason.SPLIT when rollout is 0%
         val flag = flagshipClient.getInt(flagKey, 42, "any-user-key", defaultContext)
@@ -245,7 +257,7 @@ class FlagExistenceIT {
         
         configureWireMockForFeature(type, flagKey, rolloutPercentage, var1, var2, default)
 
-        Thread.sleep(100);
+        syncFlags()
         
         val flag1 = getFlagValue(type, flagKey, defaultM, keyForVariantA)
         assertEquals(var1, flag1.value)
@@ -279,8 +291,8 @@ class FlagExistenceIT {
 
         configureWireMockForFeature(type, flagKey, rolloutPercentage, var1, var2, default)
 
-        Thread.sleep(100);
-
+        syncFlags()
+        
         val flag1 = getFlagValue(type, flagKey, defaultM, keyForVariantB)
         assertEquals(var2, flag1.value)
         assertEquals(Reason.TARGETING_MATCH, flag1.reason)

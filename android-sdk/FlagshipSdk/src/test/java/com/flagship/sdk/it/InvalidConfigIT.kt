@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import kotlinx.coroutines.runBlocking
+import com.flagship.sdk.plugins.Repository
 import java.util.concurrent.TimeUnit
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -65,12 +67,22 @@ class InvalidConfigIT {
 
         // Set the context
         flagshipClient.onContextChange(emptyMap(), defaultContext)
+        
+        // Start polling
+        flagshipClient.startPolling()
     }
 
     @AfterAll
     fun tearDown() {
         flagshipClient.shutDown()
         wireMockServer.stop()
+    }
+
+    private fun syncFlags() {
+        runBlocking {
+            val repository = flagshipClient.getRepository() as? Repository
+            repository?.syncFlags()
+        }
     }
 
     @Test
@@ -81,7 +93,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "missing-allocations-feature",
@@ -104,7 +116,7 @@ class InvalidConfigIT {
                 expectedType = "String", // But context has userId as Int
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "type-mismatch-feature",
@@ -125,7 +137,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200, "default" to 69),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "unknown-field-feature",
@@ -146,7 +158,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "allocation-lt-100-feature",
@@ -166,7 +178,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "allocation-gt-100-feature",
@@ -186,7 +198,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         // Use a targeting key that doesn't match any rule constraints
         val flag = flagshipClient.getInt(
@@ -208,7 +220,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "missing-enabled-feature",
@@ -229,7 +241,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "missing-rollout-feature",
@@ -250,7 +262,7 @@ class InvalidConfigIT {
                 variants = mapOf("variant-a" to 100, "variant-b" to 200),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "missing-rules-feature",
