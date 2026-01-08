@@ -134,8 +134,6 @@ class FlagshipProvider(
         
         if (hasCache) {
             repository.loadCacheFromDatabase()
-        } else {
-            repository.fetchConfig(isFirstTime = true)
         }
         
         flagShipClient.startPolling()
