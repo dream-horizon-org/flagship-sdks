@@ -6,25 +6,40 @@ import com.facebook.react.bridge.ReadableMap
 import com.flagshiprnsdk.config.FlagshipConfigManager
 import com.flagshiprnsdk.context.FlagshipContextManager
 import com.flagshiprnsdk.evaluation.FlagshipEvaluationManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class FlagshipRnSdkModuleImpl(
   private val reactContext: ReactApplicationContext,
 ) {
+  private val backgroundScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
   fun multiply(
     a: Double,
     b: Double,
   ): Double = a * b
 
-  fun initialize(
+  fun initializeAsync(
     config: ReadableMap,
     promise: Promise?,
   ) {
-    try {
+    backgroundScope.launch {
+      try {
+        FlagshipConfigManager.initializeAsync(reactContext, config)
+      } catch (e: Exception) {
+      }
+    }
+    promise?.resolve(true)
+  }
+
+  fun initializeSync(config: ReadableMap): Boolean {
+    return try {
       FlagshipConfigManager.initialize(reactContext, config)
-      promise?.resolve(true)
+      true
     } catch (e: Exception) {
-      println("FlagshipRnSdk: initialization failed: ${e.message}")
-      promise?.reject("INIT_ERROR", e.message ?: "Initialization failed", e)
+      false
     }
   }
 

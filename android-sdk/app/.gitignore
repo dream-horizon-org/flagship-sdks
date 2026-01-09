@@ -1,2 +1,5 @@
 **/build
 **/Flagship/build
+
+# Local config files
+src/main/assets/config.json

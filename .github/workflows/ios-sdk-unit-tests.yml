@@ -34,6 +34,16 @@ jobs:
         working-directory: ios-sdk/FlagshipFeatureFlags/Example
         run: pod install
       
+      - name: Setup Config File
+        working-directory: ios-sdk/FlagshipFeatureFlags/Example/FlagshipFeatureFlags
+        run: |
+          if [ ! -f config.json ]; then
+            echo "📝 Creating config.json from config.json.example..."
+            cp config.json.example config.json
+          else
+            echo "✅ config.json already exists"
+          fi
+      
       - name: Run All Tests
         working-directory: ios-sdk/FlagshipFeatureFlags/Example
         run: |
