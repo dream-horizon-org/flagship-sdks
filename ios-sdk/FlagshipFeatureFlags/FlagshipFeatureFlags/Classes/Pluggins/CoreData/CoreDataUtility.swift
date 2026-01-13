@@ -3,20 +3,40 @@ import CoreData
 
 public class CoreDataUtility {
     
-    private let persistentContainer: NSPersistentContainer
+    private var persistentContainer: NSPersistentContainer
+    private static let currentModelVersion = 2
+    private static let modelVersionKey = "flagship_coredata_model_version"
     
     public static let shared = CoreDataUtility()
     
     private init() {
-        // Create a programmatic CoreData model
+        let storedVersion = Self.getStoredModelVersion()
+        
+        if Self.shouldDropAndReload() {
+            Self.deleteDatabaseFiles()
+        }
+        
+        let model = Self.createModel()
+        persistentContainer = NSPersistentContainer(name: "FeatureFlagDataModel", managedObjectModel: model)
+        
+        persistentContainer.loadPersistentStores { storeDescription, error in
+            if let error = error {
+                print("CoreData: Initialization failed - \(error.localizedDescription)")
+            } else {
+                self.storeModelVersion(Self.currentModelVersion)
+            }
+        }
+        
+        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+    }
+    
+    private static func createModel() -> NSManagedObjectModel {
         let model = NSManagedObjectModel()
         
-        // Create FeatureFlagEntity
         let entity = NSEntityDescription()
         entity.name = "FeatureFlagEntity"
         entity.managedObjectClassName = "FeatureFlagEntity"
         
-        // Add attributes
         let keyAttribute = NSAttributeDescription()
         keyAttribute.name = "key"
         keyAttribute.attributeType = .stringAttributeType
@@ -40,18 +60,67 @@ public class CoreDataUtility {
         entity.properties = [keyAttribute, jsonDataAttribute, createdAtAttribute, updatedAtAttribute]
         model.entities = [entity]
         
-        // Create persistent container with programmatic model
-        persistentContainer = NSPersistentContainer(name: "FeatureFlagDataModel", managedObjectModel: model)
+        return model
+    }
+    
+    private static func shouldDropAndReload() -> Bool {
+        let storedVersion = getStoredModelVersion()
         
-        // Load the persistent stores
-        persistentContainer.loadPersistentStores { storeDescription, error in
-            if let error = error {
-                print("CoreData: Initialization failed - \(error.localizedDescription)")
-            }
+        if storedVersion == nil {
+            return checkDatabaseExists()
         }
         
-        // Configure the view context
-        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+        if storedVersion != currentModelVersion {
+            return true
+        }
+        
+        return false
+    }
+    
+    private static func checkDatabaseExists() -> Bool {
+        let fileManager = FileManager.default
+        let storeName = "FeatureFlagDataModel"
+        
+        let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+        guard let applicationSupportURL = urls.first else { return false }
+        
+        let storeURL = applicationSupportURL.appendingPathComponent("\(storeName).sqlite")
+        return fileManager.fileExists(atPath: storeURL.path)
+    }
+    
+    private static func getStoredModelVersion() -> Int? {
+        return UserDefaults.standard.object(forKey: modelVersionKey) as? Int
+    }
+    
+    private func storeModelVersion(_ version: Int) {
+        UserDefaults.standard.set(version, forKey: Self.modelVersionKey)
+        UserDefaults.standard.synchronize()
+    }
+    
+    private static func deleteDatabaseFiles() {
+        let fileManager = FileManager.default
+        let storeName = "FeatureFlagDataModel"
+        
+        let urls = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+        guard let applicationSupportURL = urls.first else {
+            return
+        }
+        
+        let storeURL = applicationSupportURL.appendingPathComponent("\(storeName).sqlite")
+        let walURL = applicationSupportURL.appendingPathComponent("\(storeName).sqlite-wal")
+        let shmURL = applicationSupportURL.appendingPathComponent("\(storeName).sqlite-shm")
+        
+        if fileManager.fileExists(atPath: storeURL.path) {
+            try? fileManager.removeItem(at: storeURL)
+        }
+        
+        if fileManager.fileExists(atPath: walURL.path) {
+            try? fileManager.removeItem(at: walURL)
+        }
+        
+        if fileManager.fileExists(atPath: shmURL.path) {
+            try? fileManager.removeItem(at: shmURL)
+        }
     }
     
     public var context: NSManagedObjectContext {
