@@ -85,5 +85,5 @@ jobs:
       - name: Bump version to next patch
         run: |
           chmod +x scripts/bump-version.sh
-          ./scripts/bump-version.sh ios "$RELEASE_VERSION"
+          ./scripts/bump-version.sh ios "$CODE_VERSION"
 
