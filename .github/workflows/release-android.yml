@@ -89,4 +89,4 @@ jobs:
       - name: Bump version
         run: |
           chmod +x scripts/bump-version.sh
-          ./scripts/bump-version.sh android "$RELEASE_VERSION"
+          ./scripts/bump-version.sh android "$GRADLE_VERSION"
