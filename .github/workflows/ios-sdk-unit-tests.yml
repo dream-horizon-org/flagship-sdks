@@ -2,11 +2,20 @@ name: iOS SDK Tests
 
 on:
   push:
+    # Run on pushes to any branch when ios-sdk files change
     paths:
       - 'ios-sdk/**'
   pull_request:
+    # Run on PRs targeting any branch when ios-sdk files change
+    # No branch restrictions - runs on PRs to main, develop, feature branches, etc.
     paths:
       - 'ios-sdk/**'
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
+
+# Cancel previous runs if new commits are pushed
+concurrency:
+  group: ios-sdk-tests-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
