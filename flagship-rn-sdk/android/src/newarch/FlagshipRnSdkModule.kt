@@ -16,8 +16,12 @@ class FlagshipRnSdkModule(
 
   override fun multiply(a: Double, b: Double): Double = flagshipRnSdkModuleImpl.multiply(a, b)
 
-  override fun initialize(config: ReadableMap, promise: Promise?) {
-    flagshipRnSdkModuleImpl.initialize(config, promise)
+  override fun initializeAsync(config: ReadableMap, promise: Promise?) {
+    flagshipRnSdkModuleImpl.initializeAsync(config, promise)
+  }
+
+  override fun initializeSync(config: ReadableMap): Boolean {
+    return flagshipRnSdkModuleImpl.initializeSync(config)
   }
 
   override fun setContext(context: ReadableMap): Boolean {

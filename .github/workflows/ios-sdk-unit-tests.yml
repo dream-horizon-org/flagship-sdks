@@ -1,12 +1,16 @@
 name: iOS SDK Tests
 
 on:
-  push:
-    paths:
-      - 'ios-sdk/**'
   pull_request:
+    # Run on PRs when ios-sdk files change
     paths:
       - 'ios-sdk/**'
+  workflow_dispatch:  # Allow manual triggering from GitHub UI
+
+# Cancel previous runs if new commits are pushed
+concurrency:
+  group: ios-sdk-tests-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -33,6 +37,16 @@ jobs:
       - name: Install Dependencies
         working-directory: ios-sdk/FlagshipFeatureFlags/Example
         run: pod install
+      
+      - name: Setup Config File
+        working-directory: ios-sdk/FlagshipFeatureFlags/Example/FlagshipFeatureFlags
+        run: |
+          if [ ! -f config.json ]; then
+            echo "📝 Creating config.json from config.json.example..."
+            cp config.json.example config.json
+          else
+            echo "✅ config.json already exists"
+          fi
       
       - name: Run All Tests
         working-directory: ios-sdk/FlagshipFeatureFlags/Example

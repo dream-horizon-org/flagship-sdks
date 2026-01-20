@@ -16,6 +16,7 @@ public struct FlagshipFeatureMetadata: ProviderMetadata {
 public final class FlagshipOpenFeatureProvider: FeatureProvider {
     
     let openFeatureClient: FlagshipFeatureClient
+    private var isInitialized = false
 
     private let subject = PassthroughSubject<ProviderEvent?, Never>()
     public func observe() -> AnyPublisher<ProviderEvent?, Never> {
@@ -34,7 +35,20 @@ public final class FlagshipOpenFeatureProvider: FeatureProvider {
 
     // MARK: Required FeatureProvider Methods
     public func initialize(initialContext: EvaluationContext?) async throws {
-        // Custom logic will be added later
+        guard !isInitialized else { return }
+        isInitialized = true
+        
+        let evaluationManager = openFeatureClient.getEvaluationManager()
+        let featureRepository = evaluationManager.getFeatureRepository()
+        let coreDataStore = evaluationManager.getCoreDataStore()
+        
+        let hasCache = featureRepository.hasCachedData(coreDataStore: coreDataStore)
+        
+        if hasCache {
+            featureRepository.loadCacheFromDatabase(coreDataStore: coreDataStore)
+        }
+        
+        openFeatureClient.startPolling()
     }
 
     public func onContextSet(

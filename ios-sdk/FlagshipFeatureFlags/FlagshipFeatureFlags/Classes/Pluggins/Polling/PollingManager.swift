@@ -24,15 +24,16 @@ public class PollingManager {
         
         isPolling = true
         
-        // Make first call immediately on background thread
         Task.detached(priority: .background) { [weak self] in
             await self?.pollingBlock()
         }
         
-        // Schedule subsequent calls on background thread
-        timer = Timer.scheduledTimer(withTimeInterval: config.interval, repeats: true) { [weak self] _ in
-            Task.detached(priority: .background) {
-                await self?.pollingBlock()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.timer = Timer.scheduledTimer(withTimeInterval: self.config.interval, repeats: true) { [weak self] _ in
+                Task.detached(priority: .background) {
+                    await self?.pollingBlock()
+                }
             }
         }
     }

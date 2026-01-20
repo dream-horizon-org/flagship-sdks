@@ -23,13 +23,15 @@ class Repository(
 ) : IRepository {
     private val timestampUtility = TimestampUtility(persistentCache)
 
-    override fun init() {
-        scope.launch {
-            val snapShot = store.current()
-            if (snapShot != null) {
-                val features = JsonUtility.fromJson<FeatureFlagsSchema>(snapShot.json).features
-                configCache.putAll(features.associateBy { it.key })
-            }
+    suspend fun hasCachedData(): Boolean {
+        return store.current() != null
+    }
+
+    suspend fun loadCacheFromDatabase() {
+        val snapShot = store.current()
+        if (snapShot != null) {
+            val features = JsonUtility.fromJson<FeatureFlagsSchema>(snapShot.json).features
+            configCache.putAll(features.associateBy { it.key })
         }
     }
 

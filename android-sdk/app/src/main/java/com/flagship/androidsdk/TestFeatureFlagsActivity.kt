@@ -56,11 +56,12 @@ class TestFeatureFlagsActivity : AppCompatActivity() {
 
     private fun initFlagshipClient() {
         try {
+            val appConfig = ConfigHelper.loadConfig(application)
             val config =
                 FlagShipConfig(
                     applicationContext = application,
-                    baseUrl = "http://10.0.2.2:8080",
-                    flagshipApiKey = "tenant1",
+                    baseUrl = appConfig.baseUrl,
+                    flagshipApiKey = appConfig.flagshipApiKey,
                     refreshInterval =
                         java.util.concurrent.TimeUnit.SECONDS
                             .toMillis(30),

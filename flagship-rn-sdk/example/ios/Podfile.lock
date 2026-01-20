@@ -3,11 +3,11 @@ PODS:
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
   - FBLazyVector (0.79.2)
-  - FlagshipFeatureFlags (0.2.95):
+  - FlagshipFeatureFlags (0.2.96):
     - OpenFeature (= 0.3.0)
-  - FlagshipRnSdk (0.2.6):
+  - FlagshipRnSdk (0.2.8):
     - DoubleConversion
-    - FlagshipFeatureFlags (= 0.2.95)
+    - FlagshipFeatureFlags (= 0.2.96)
     - glog
     - hermes-engine
     - RCT-Folly (= 2024.11.18.00)
@@ -1916,8 +1916,8 @@ SPEC CHECKSUMS:
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
-  FlagshipFeatureFlags: 4eccfcebfb083ca45862300b33d15f3f00894644
-  FlagshipRnSdk: 660b2065d0d49271140629fd4e8b6f0ed0559230
+  FlagshipFeatureFlags: cf9dc37490827a58689ca3ca64045df6f9202c5c
+  FlagshipRnSdk: 7e610de0a235669f2d80d01e30e8cfd40aff1e2f
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe

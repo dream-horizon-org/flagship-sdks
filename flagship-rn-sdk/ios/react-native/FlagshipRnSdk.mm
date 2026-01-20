@@ -7,7 +7,8 @@
 @interface FlagshipRnSdkImpl : NSObject
 + (instancetype)shared;
 - (NSNumber *)multiply:(double)a b:(double)b;
-- (void)initialize:(NSDictionary *)config resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)initializeAsync:(NSDictionary *)config resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (NSNumber *)initializeSync:(NSDictionary *)config;
 - (NSNumber *)setContext:(NSDictionary *)context;
 - (NSNumber *)getBooleanValue:(NSString *)key defaultValue:(BOOL)defaultValue;
 - (NSString *)getStringValue:(NSString *)key defaultValue:(NSString *)defaultValue;
@@ -30,10 +31,14 @@
   return [[FlagshipRnSdkImpl shared] multiply:a b:b];
 }
 
-- (void)initialize:(NSDictionary *)config
-           resolve:(RCTPromiseResolveBlock)resolve
-            reject:(RCTPromiseRejectBlock)reject {
-  [[FlagshipRnSdkImpl shared] initialize:config resolve:resolve reject:reject];
+- (void)initializeAsync:(NSDictionary *)config
+                resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject {
+  [[FlagshipRnSdkImpl shared] initializeAsync:config resolve:resolve reject:reject];
+}
+
+- (NSNumber *)initializeSync:(NSDictionary *)config {
+  return [[FlagshipRnSdkImpl shared] initializeSync:config];
 }
 
 - (NSNumber *)setContext:(NSDictionary *)context {

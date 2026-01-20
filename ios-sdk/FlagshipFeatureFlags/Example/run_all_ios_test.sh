@@ -10,97 +10,45 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}🧪 Simple Test Runner${NC}"
 echo "=================================================="
 
-# Auto-detect available iPhone simulator
-echo -e "${YELLOW}🔍 Detecting available iPhone simulators...${NC}"
+# Auto-detect available iPhone simulator (fast, no Python)
+# Get first available iPhone device (prioritize iPhone 16, 15, 14, then any)
+device_line=$(xcrun simctl list devices available | grep "iPhone 16" | head -1)
 
-# Debug: Show all available devices
-echo -e "${BLUE}📱 Available simulators:${NC}"
-xcrun simctl list devices available | grep "iPhone" | head -5
-
-# Try to find iPhone 16 first
-device_name=$(xcrun simctl list devices available | grep "iPhone 16" | head -1 | grep -o "iPhone 16[^ ]*" | sed 's/ *$//')
-
-# If iPhone 16 not found, try iPhone 15
-if [ -z "$device_name" ]; then
-    echo -e "${YELLOW}⚠️  iPhone 16 not found, trying iPhone 15...${NC}"
-    device_name=$(xcrun simctl list devices available | grep "iPhone 15" | head -1 | grep -o "iPhone 15[^ ]*" | sed 's/ *$//')
+if [ -z "$device_line" ]; then
+    device_line=$(xcrun simctl list devices available | grep "iPhone 15" | head -1)
+fi
+if [ -z "$device_line" ]; then
+    device_line=$(xcrun simctl list devices available | grep "iPhone 14" | head -1)
+fi
+if [ -z "$device_line" ]; then
+    device_line=$(xcrun simctl list devices available | grep "iPhone" | head -1)
 fi
 
-# If iPhone 15 not found, try iPhone 14
-if [ -z "$device_name" ]; then
-    echo -e "${YELLOW}⚠️  iPhone 15 not found, trying iPhone 14...${NC}"
-    device_name=$(xcrun simctl list devices available | grep "iPhone 14" | head -1 | grep -o "iPhone 14[^ ]*" | sed 's/ *$//')
-fi
-
-# If still not found, try any iPhone
-if [ -z "$device_name" ]; then
-    echo -e "${YELLOW}⚠️  iPhone 14 not found, trying any iPhone...${NC}"
-    device_name=$(xcrun simctl list devices available | grep "iPhone" | head -1 | grep -o "iPhone [0-9A-Za-z ]*" | sed 's/ *$//')
-fi
-
-if [ -z "$device_name" ]; then
+if [ -z "$device_line" ]; then
     echo -e "${RED}❌ No iPhone simulator found${NC}"
-    echo -e "${YELLOW}Available devices:${NC}"
-    xcrun simctl list devices available | grep "iPhone" || echo "No iPhone simulators available"
+    exit 1
+fi
+
+# Extract full device name (everything from "iPhone" until opening parenthesis)
+device_name=$(echo "$device_line" | sed -E 's/^[[:space:]]*(iPhone [0-9A-Za-z ]+).*/\1/' | sed 's/ *$//')
+
+if [ -z "$device_name" ]; then
+    echo -e "${RED}❌ Could not extract device name${NC}"
     exit 1
 fi
 
 echo -e "${GREEN}✅ Found $device_name${NC}"
-
-# Smart iOS version detection with GitHub Actions compatibility
-echo -e "${YELLOW}🔍 Detecting iOS version for $device_name...${NC}"
-
-# First, let's see what's actually available
-echo -e "${BLUE}📱 Available devices with iOS versions:${NC}"
-xcrun simctl list devices available | grep "$device_name" | head -3
-
-# Try to extract iOS version from the device list
-available_ios=$(xcrun simctl list devices available | grep "$device_name" | grep -o "OS:[0-9.]*" | cut -d: -f2 | sort -V | tail -1)
-
-# If we still can't detect, try a different approach
-if [ -z "$available_ios" ]; then
-    echo -e "${YELLOW}⚠️  Could not detect iOS version from device list, trying alternative approach...${NC}"
-    
-    # Try to find any iOS version for this device type
-    available_ios=$(xcrun simctl list devices available | grep "iPhone" | grep -o "OS:[0-9.]*" | cut -d: -f2 | sort -V | tail -1)
-    
-    if [ -n "$available_ios" ]; then
-        echo -e "${GREEN}✅ Found iOS $available_ios from available devices${NC}"
-    fi
-fi
-
-# If still no iOS version found, use environment-specific fallbacks
-if [ -z "$available_ios" ]; then
-    echo -e "${YELLOW}⚠️  No iOS version detected, using environment-specific fallback...${NC}"
-    
-    # Check if we're on GitHub Actions (common environment variables)
-    if [ -n "$GITHUB_ACTIONS" ] || [ -n "$CI" ]; then
-        echo -e "${BLUE}🔍 Detected CI environment, using GitHub Actions compatible iOS version${NC}"
-        available_ios="18.4"  # GitHub Actions typically has 18.4+
-    else
-        echo -e "${BLUE}🔍 Detected local environment, using local iOS version${NC}"
-        available_ios="18.3.1"  # Your local version
-    fi
-fi
-
-echo -e "${GREEN}📱 Using iOS $available_ios${NC}"
-
-# Final validation - make sure the device and iOS version combination exists
-echo -e "${YELLOW}🔍 Validating device and iOS version combination...${NC}"
-if xcrun simctl list devices available | grep -q "$device_name.*OS:$available_ios"; then
-    echo -e "${GREEN}✅ Device $device_name with iOS $available_ios is available${NC}"
-else
-    echo -e "${YELLOW}⚠️  Device $device_name with iOS $available_ios not found, but proceeding anyway...${NC}"
-    echo -e "${BLUE}📱 Available combinations:${NC}"
-    xcrun simctl list devices available | grep "$device_name" | head -3
-fi
+echo -e "${BLUE}ℹ️  xcodebuild will auto-detect the iOS version for this device${NC}"
 
 # Run all tests with better error handling
 echo -e "${YELLOW}🚀 Running all tests...${NC}"
+echo -e "${BLUE}Destination: platform=iOS Simulator,name=$device_name${NC}"
+
+# Use device name only - xcodebuild will auto-detect the correct iOS version
 output=$(xcodebuild test \
     -workspace FlagshipFeatureFlags.xcworkspace \
     -scheme FlagshipFeatureFlags-Example \
-    -destination "platform=iOS Simulator,name=$device_name,OS=$available_ios" \
+    -destination "platform=iOS Simulator,name=$device_name" \
     -only-testing:FlagshipFeatureFlags_Tests \
     2>&1)
 

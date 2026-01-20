@@ -85,11 +85,12 @@ fun MainScreen(
 
     LaunchedEffect(Unit) {
         try {
+            val appConfig = ConfigHelper.loadConfig(applicationContext)
             val config =
                 FlagShipConfig(
                     applicationContext = applicationContext,
-                    baseUrl = "http://10.0.2.2:8080",
-                    flagshipApiKey = "tenant1",
+                    baseUrl = appConfig.baseUrl,
+                    flagshipApiKey = appConfig.flagshipApiKey,
                     refreshInterval = TimeUnit.SECONDS.toMillis(30),
                 )
             flagshipClient = FlagShipClient.getInstance("test-domain", config)

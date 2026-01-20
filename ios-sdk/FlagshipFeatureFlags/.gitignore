@@ -34,3 +34,6 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 Pods/
+
+# Local config files
+Example/FlagshipFeatureFlags/config.json

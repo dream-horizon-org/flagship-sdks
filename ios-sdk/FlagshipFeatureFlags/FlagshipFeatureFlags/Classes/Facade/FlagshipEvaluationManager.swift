@@ -7,6 +7,7 @@ public final class FlagshipEvaluationManager {
     private let featureRepository: FeatureRepository
     private let flagEvaluator: FlagEvaluator
     private let dataSyncManager: DataSyncManager
+    private let coreDataStore: CoreDataStore
     private var pollingManager: PollingManager?
     
     public init(
@@ -17,8 +18,7 @@ public final class FlagshipEvaluationManager {
     ) {
         self.config = config
         self.featureRepository = featureRepository
-        
-        featureRepository.loadFromCoreData(coreDataStore: coreDataStore)
+        self.coreDataStore = coreDataStore
         
         let plugin = FlagshipEvaluationPlugin()
         
@@ -102,5 +102,13 @@ public final class FlagshipEvaluationManager {
     
     public func clearFlagCache() {
         flagEvaluator.clearFlagCache()
+    }
+    
+    func getFeatureRepository() -> FeatureRepository {
+        return featureRepository
+    }
+    
+    func getCoreDataStore() -> CoreDataStore {
+        return coreDataStore
     }
 }

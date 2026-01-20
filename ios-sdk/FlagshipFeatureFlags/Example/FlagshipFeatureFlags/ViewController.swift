@@ -32,10 +32,11 @@ class ViewController: UIViewController {
     private func setupOpenFeature() {
         // For demo purposes, we'll use a simple in-memory store instead of CoreData
         // This avoids the Core Data setup complexity
+        let appConfig = ConfigHelper.loadConfig()
         let config = FlagshipFeatureConfig(
-            baseURL: "http://localhost:8080",
+            baseURL: appConfig.baseUrl,
             refreshInterval: 10,
-            flagshipApiKey: "tenant1"
+            flagshipApiKey: appConfig.flagshipApiKey
         )
         
         let provider = FlagshipOpenFeatureProvider(config: config)

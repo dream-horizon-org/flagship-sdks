@@ -23,6 +23,8 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import kotlinx.coroutines.runBlocking
+import com.flagship.sdk.plugins.Repository
 import java.util.concurrent.TimeUnit
 import java.util.stream.Stream
 
@@ -76,12 +78,22 @@ class RuleEvaluationIT {
 
         // Set the context
         flagshipClient.onContextChange(emptyMap(), defaultContext)
+        
+        // Start polling
+        flagshipClient.startPolling()
     }
 
     @AfterAll
     fun tearDown() {
         flagshipClient.shutDown()
         wireMockServer.stop()
+    }
+
+    private fun syncFlags() {
+        runBlocking {
+            val repository = flagshipClient.getRepository() as? Repository
+            repository?.syncFlags()
+        }
     }
 
     @Test
@@ -95,7 +107,7 @@ class RuleEvaluationIT {
                 ),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "first-rule-match",
@@ -118,7 +130,7 @@ class RuleEvaluationIT {
                 ),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "first-rule-mismatch",
@@ -198,7 +210,7 @@ class RuleEvaluationIT {
         MockUtils.stubWireMockFeatureConfig {
             createFeatureWithTwoRules(type, testKey, variantA, variantB, variantDefault)
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = getFlag<Any>(type, testKey, defaultValue, "test-key", defaultContext)
         
@@ -221,7 +233,7 @@ class RuleEvaluationIT {
                 ),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             "third-rule-match",
@@ -349,7 +361,7 @@ class RuleEvaluationIT {
                 ),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             testKey,
@@ -390,7 +402,7 @@ class RuleEvaluationIT {
                 ),
             )
         }
-        Thread.sleep(100)
+        syncFlags()
 
         val flag = flagshipClient.getInt(
             testKey,
