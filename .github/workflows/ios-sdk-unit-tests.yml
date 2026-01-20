@@ -2,13 +2,7 @@ name: iOS SDK Tests
 
 on:
   pull_request:
-    # Only run on PRs to avoid duplicate runs (push events are covered by PRs)
-    paths:
-      - 'ios-sdk/**'
-  push:
-    # Only run on pushes to main branch to avoid duplicate runs
-    branches:
-      - main
+    # Run on PRs when ios-sdk files change
     paths:
       - 'ios-sdk/**'
   workflow_dispatch:  # Allow manual triggering from GitHub UI
