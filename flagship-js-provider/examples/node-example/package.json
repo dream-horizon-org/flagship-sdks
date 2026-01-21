@@ -1,0 +1,22 @@
+{
+  "name": "node-example",
+  "version": "1.0.0",
+  "description": "Node.js example for Flagship JS Provider",
+  "type": "module",
+  "main": "test-interactive.js",
+  "scripts": {
+    "start": "tsx test-interactive.js",
+    "test": "tsx test-interactive.js",
+    "dev": "tsx test-interactive.js"
+  },
+  "dependencies": {
+    "@flagship/js-provider": "file:../..",
+    "@openfeature/server-sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "private": true
+}
+
